@@ -35,7 +35,6 @@ A full stack diary application. This project focuses on learning by building, st
 - PyTorch (planned)
 
 ---
-
 ## 🏗 Architecture (AI Integrated)
 
 ```mermaid
@@ -46,8 +45,6 @@ flowchart LR
   AI -->|Generate Image| DM[Diffusion Model]
   BE -->|SQL| DB[(PostgreSQL)]
   BE -->|Store Image| S3[(Object Storage)]
-
----
 
 ```markdown
 ## 🔄 Request Flow (Create Diary + Generate Image)
@@ -70,3 +67,4 @@ sequenceDiagram
   BE->>DB: Save diary + image URL
   BE-->>FE: 201 Created (with image URL)
   FE-->>U: Display diary with generated image
+

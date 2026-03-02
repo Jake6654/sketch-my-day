@@ -1,10 +1,6 @@
-# Sketch My Day (Rebuild)
+# Sketch My Day 
 
-A full stack diary application rebuilt from scratch to deeply understand
-frontend architecture, backend design, and deployment pipeline.
-
-This project focuses on learning by building, starting with a clean frontend
-and gradually integrating a Spring Boot backend, CI pipeline, and cloud deployment.
+A full stack diary application. This project focuses on learning by building, starting with a clean frontend and gradually integrating a Spring Boot backend, CI pipeline, AI service, and cloud deployment.
 
 ---
 
@@ -50,14 +46,8 @@ flowchart LR
   AI -->|Generate Image| DM[Diffusion Model]
   BE -->|SQL| DB[(PostgreSQL)]
   BE -->|Store Image| S3[(Object Storage)]
-> The backend communicates with a dedicated Python AI service
-> that generates illustrations using a diffusion model based on diary content.
 
 ---
-
-# 🔥 2️⃣ Request Flow (AI 이미지 생성 포함)
-
-이게 제일 중요한 부분이야.
 
 ```markdown
 ## 🔄 Request Flow (Create Diary + Generate Image)

@@ -37,6 +37,8 @@ A full stack diary application. This project focuses on learning by building, st
 ---
 ## 🏗 Architecture (AI Integrated)
 
+This flowchart illustrates the overall system architecture. It shows how the Next.js frontend communicates with the Spring Boot backend, and how the backend coordinates with the Python AI Service, the PostgreSQL database, and Object Storage.
+
 ```mermaid
 flowchart LR
   U[User] -->|HTTPS| FE[Next.js Frontend]
@@ -45,11 +47,10 @@ flowchart LR
   AI -->|Generate Image| DM[Diffusion Model]
   BE -->|SQL| DB[(PostgreSQL)]
   BE -->|Store Image| S3[(Object Storage)]
-
-```markdown
-## 🔄 Request Flow (Create Diary + Generate Image)
-
+```
+This sequence diagram details the step-by-step process when a user creates a new diary entry. It highlights the sequence of API calls, the image generation process by the Diffusion Model, and how the final data is saved before returning a response to the user.
 ```mermaid
+
 sequenceDiagram
   participant U as User
   participant FE as Frontend (Next.js)
@@ -67,4 +68,7 @@ sequenceDiagram
   BE->>DB: Save diary + image URL
   BE-->>FE: 201 Created (with image URL)
   FE-->>U: Display diary with generated image
+```
+
+
 

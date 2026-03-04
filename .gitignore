@@ -1,0 +1,85 @@
+# =========================
+# Secrets / Environment
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+.idea/
+*.iml
+
+# =========================
+# Logs
+# =========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Frontend (Next.js)
+# =========================
+**/node_modules/
+**/.next/
+**/out/
+**/dist/
+**/.turbo/
+**/.vercel/
+**/.swc/
+**/coverage/
+**/.eslintcache
+**/*.tsbuildinfo
+
+# Optional local env files (already covered by .env.* above)
+# frontend/.env.local
+# frontend/.env.development.local
+# frontend/.env.production.local
+# frontend/.env.test.local
+
+# =========================
+# Backend (Spring Boot / Gradle)
+# =========================
+**/build/
+**/out/
+**/.gradle/
+**/bin/
+**/target/
+
+# Gradle caches (optional)
+.gradle/
+
+# IntelliJ / Eclipse (extra)
+.classpath
+.project
+.settings/
+
+# =========================
+# Java
+# =========================
+*.class
+*.jar
+*.war
+*.ear
+
+# =========================
+# Docker
+# =========================
+**/*-override.yml
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.temp
+*.swp

@@ -23,6 +23,26 @@ import java.util.List;
  * JPA converts rows into Diary objects
  * Controller returns them as JSON
  */
+
+/**
+ * Test method
+ * 1. enter http://localhost:8080/api/diaries?userId=test-user , then it should return empty [] cause there's no data yet
+ * 2. use this command on terminal to add data
+ *  curl -X POST http://localhost:8080/api/diaries \
+ *   -H "Content-Type: application/json" \
+ *   -d '{
+ *     "userId": "test-user",
+ *     "entryDate": "2026-03-06",
+ *     "mood": "happy",
+ *     "content": "Today I finally connected Spring Boot to Supabase.",
+ *     "todo": "[{\"id\":1,\"text\":\"Study Spring\",\"done\":true}]",
+ *     "reflection": "I feel more confident now.",
+ *     "illustrationUrl": null,
+ *     "summary": "Connected Spring Boot to Supabase."
+ *   }'
+ *   3. then use http://localhost:8080/api/diaries?userId=test-user to verify whether
+ *   the data was inserted properly
+ */
 @RestController // tell this class handles REST API requests and return JSON data
 @RequestMapping("/api/diaries") // Sets the base path for all endpoints in this controller
 public class DiaryController {

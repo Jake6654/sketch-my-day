@@ -1,8 +1,11 @@
 // components/diary/HangingNotes.tsx
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { DiaryEntry, getRandomColor } from "./diaryTypes";
+import BirthdaySurprise, { isFriendBirthday } from "./BirthdaySurprise";
 
 type HangingNotesProps = {
   diaries: DiaryEntry[];
@@ -30,6 +33,9 @@ export default function HangingNotes({
   diaries,
   isLoading,
 }: HangingNotesProps) {
+  const router = useRouter();
+  const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
+
   // Always show only the latest 5 diaries by entryDate.
   const visibleDiaries = [...diaries]
     .sort(
@@ -74,6 +80,14 @@ export default function HangingNotes({
                 {/* Paper */}
                 <Link
                   href={`/diary/${diary.entryDate}`}
+                  onClick={async (event) => {
+                    if (!isFriendBirthday(diary.entryDate)) return;
+
+                    event.preventDefault();
+                    setShowBirthdaySurprise(true);
+                    await new Promise((resolve) => setTimeout(resolve, 1200));
+                    router.push(`/diary/${diary.entryDate}`);
+                  }}
                   className="block origin-top hover:-rotate-3 hover:-translate-y-1 transition-transform"
                 >
                   <div
@@ -105,6 +119,7 @@ export default function HangingNotes({
       <p className="mt-1 text-[10px] md:text-xs text-gray-600 font-bold">
         These post-its are generated from your real diary entries ✨
       </p>
+      <BirthdaySurprise open={showBirthdaySurprise} />
     </section>
   );
 }

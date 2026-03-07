@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { MOODS } from "./diaryTypes";
+import BirthdaySurprise, { isFriendBirthday } from "./BirthdaySurprise";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
@@ -68,6 +69,7 @@ export default function DiaryEditor({
 
   // Saving state
   const [saving, setSaving] = useState(false);
+  const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
 
   // Mood modals
   const [showSadModal, setShowSadModal] = useState(false);
@@ -128,6 +130,11 @@ export default function DiaryEditor({
         console.error("Failed to save diary", await res.text());
         alert("Failed to save diary. Please try again.");
         return;
+      }
+
+      if (isFriendBirthday(date)) {
+        setShowBirthdaySurprise(true);
+        await new Promise((resolve) => setTimeout(resolve, 2500));
       }
 
       router.push("/diary-board");
@@ -567,6 +574,7 @@ export default function DiaryEditor({
             </div>
           </div>
         )}
+        <BirthdaySurprise open={showBirthdaySurprise} />
       </div>
     </div>
   );

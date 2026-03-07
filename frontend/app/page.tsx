@@ -6,6 +6,13 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { BookHeart, Sparkles, Paintbrush, PenTool } from "lucide-react";
 
+function getLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function Home() {
   // 로그인된 유저 정보
   const [user, setUser] = useState<User | null>(null);
@@ -68,6 +75,7 @@ export default function Home() {
     (user?.user_metadata?.avatar_url as string | undefined) ||
     (user?.user_metadata?.picture as string | undefined) ||
     null;
+  const todayDate = getLocalDateString(new Date());
 
   return (
     <div className="relative min-h-screen font-mono bg-[#f4f3ee] text-black overflow-x-hidden">
@@ -157,9 +165,9 @@ export default function Home() {
 
           {/* 🔹 Start Writing 버튼: 로그인 상태에 따라 분기 */}
           {user ? (
-            // 로그인 된 경우: /diary 로 이동
+            // 로그인 된 경우: 오늘 날짜의 diary 페이지로 이동 (기존 데이터 fetch 가능)
             <Link
-              href="/diary"
+              href={`/diary/${todayDate}`}
               className="text-2xl font-black px-10 py-4 bg-[#4D96FF] text-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:bg-[#3b82f6] hover:translate-y-[4px] hover:translate-x-[4px] hover:shadow-none transition-all flex items-center gap-3"
             >
               <PenTool className="w-8 h-8 stroke-[3px]" />

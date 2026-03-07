@@ -1,24 +1,19 @@
 // app/diary/page.tsx
 "use client";
 
-import DiaryEditor from "@/components/diary/DiaryEditor";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DiaryPage() {
-  // YYYY-MM-DD 형식의 오늘 날짜
-  const today = new Date();
-  const dateString = today.toISOString().slice(0, 10);
+  const router = useRouter();
 
-  return (
-    <DiaryEditor
-      mode="create" // 오늘 새로 쓰는 용도
-      date={dateString} // DiaryEditor 안에서 저장할 때 사용
-      initialContent="" // 처음엔 빈값
-      initialMood={null}
-      initialTodos={[]} // TODO 비어있는 상태
-      initialIllustrationUrl={null} // 아직 일러스트 없음
-      backHref="/"
-      backLabelDesktop="Back"
-      backLabelMobile="Back to Home"
-    />
-  );
+  useEffect(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    router.replace(`/diary/${year}-${month}-${day}`);
+  }, [router]);
+
+  return <div className="p-8 font-bold">Redirecting to today&apos;s diary...</div>;
 }

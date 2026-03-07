@@ -1,15 +1,13 @@
 package sketch_my_day.demo.diary;
 
-import org.springframework.stereotype.Service;
-import sketch_my_day.demo.diary.dto.DiaryDetailResponse;
-import sketch_my_day.demo.diary.dto.DiarySummaryResponse;
-import sketch_my_day.demo.diary.dto.SaveDiaryRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import sketch_my_day.demo.diary.dto.DiaryDetailResponse;
+import sketch_my_day.demo.diary.dto.DiarySummaryResponse;
+import sketch_my_day.demo.diary.dto.SaveDiaryRequest;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -73,9 +71,14 @@ public class DiaryService {
                 diary.getId(),
                 diary.getEntryDate(),
                 diary.getMood(),
-                diary.getSummary(),
+                hasText(diary.getSummary()) ? diary.getSummary().trim() : "",
+                hasText(diary.getContent()) ? diary.getContent().trim() : "",
                 diary.getIllustrationUrl()
         );
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     private DiaryDetailResponse toDetailResponse(Diary diary) {
@@ -94,4 +97,3 @@ public class DiaryService {
         );
     }
 }
-

@@ -13,6 +13,7 @@ A full stack diary application. This project focuses on learning by building, st
 - Tailwind CSS
 - Zustand (state management)
 - Axios (API communication)
+- Supabase Auth (Google OAuth)
 
 ### Backend (Planned)
 - Java 21
@@ -70,5 +71,27 @@ sequenceDiagram
   FE-->>U: Display diary with generated image
 ```
 
+## Supabase OAuth Setup (Frontend)
 
+1. Prepare env file
+```bash
+cd frontend
+cp .env.example .env
+```
+If `frontend/.env` already exists, keep using it.
 
+2. Set values in `frontend/.env`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+3. In Supabase Dashboard
+- Authentication > Providers > Google: enable Google provider and configure Google OAuth client ID/secret.
+- Authentication > URL Configuration: add these Redirect URLs.
+  - `http://localhost:3000/auth/callback`
+  - your production URL + `/auth/callback` (for example `https://your-domain.com/auth/callback`)
+
+4. Run frontend
+```bash
+npm install
+npm run dev
+```

@@ -10,6 +10,14 @@ import { DiaryEntry, normalizeMood } from "@/components/diary/diaryTypes";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
+type DiarySummaryApiResponse = {
+  id: string;
+  entryDate: string;
+  mood: string;
+  summary: string | null;
+  contentPreview?: string | null;
+};
+
 export default function DiaryBoardPage() {
   const [diaries, setDiaries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,12 +44,12 @@ export default function DiaryBoardPage() {
           return;
         }
 
-        const json = await res.json();
-        const mapped: DiaryEntry[] = json.map((d: any) => ({
+        const json = (await res.json()) as DiarySummaryApiResponse[];
+        const mapped: DiaryEntry[] = json.map((d) => ({
           id: d.id,
           entryDate: d.entryDate,
           mood: normalizeMood(d.mood),
-          summary: d.summary,
+          summary: (d.summary && d.summary.trim()) || d.contentPreview || "",
         }));
 
         setDiaries(mapped);

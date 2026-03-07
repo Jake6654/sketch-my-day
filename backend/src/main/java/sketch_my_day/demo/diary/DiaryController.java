@@ -1,0 +1,88 @@
+package sketch_my_day.demo.diary;
+
+
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+import sketch_my_day.demo.diary.dto.DiaryDetailResponse;
+import sketch_my_day.demo.diary.dto.DiarySummaryResponse;
+import sketch_my_day.demo.diary.dto.SaveDiaryRequest;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ *  This file handles HTTP requests from the frontend (Handle HTTP only)
+ *  Service - Handles business logic
+ *  Repository - Handle DB access
+ *  Entity - Represents database data
+ */
+
+/**
+ * Flow:
+ * DiaryController.getAllDiaries() receives the request
+ * It calls DiaryService.getAllDiaries(userId)
+ * Service calls DiaryRepository.findByUserIdOrderByEntryDateDesc(userId)
+ * Repository fetches rows from PostgreSQL
+ * JPA converts rows into Diary objects
+ * Controller returns them as JSON
+ */
+
+/**
+ * Test method
+ * 1. enter http://localhost:8080/api/diaries?userId=test-user , then it should return empty [] cause there's no data yet
+ * 2. use this command on terminal to add data
+ *  curl -X POST http://localhost:8080/api/diaries \
+ *   -H "Content-Type: application/json" \
+ *   -d '{
+ *     "userId": "test-user",
+ *     "entryDate": "2026-03-06",
+ *     "mood": "happy",
+ *     "content": "Today I finally connected Spring Boot to Supabase.",
+ *     "todo": "[{\"id\":1,\"text\":\"Study Spring\",\"done\":true}]",
+ *     "reflection": "I feel more confident now.",
+ *     "illustrationUrl": null,
+ *     "summary": "Connected Spring Boot to Supabase."
+ *   }'
+ *   3. then use http://localhost:8080/api/diaries?userId=test-user to verify whether
+ *   the data was inserted properly
+ */
+@RestController // tell this class handles REST API requests and return JSON data
+@RequestMapping("/api/diaries") // Sets the base path for all endpoints in this controller
+public class DiaryController {
+
+    private final DiaryService diaryService;
+
+    public DiaryController(DiaryService diaryService) {
+        this.diaryService = diaryService;
+    }
+
+    @GetMapping
+    // RequestParam reads a query parameter from the url
+    // ex: GET /api/diaries?userId=abc123
+    public List<DiarySummaryResponse> getAllDiaries(@RequestParam String userId){
+        return diaryService.getAllDiaries(userId);
+    }
+
+    @GetMapping("/{date}")
+    // PathVariable reads a value from the URL path
+    // ex: GET /api/diaries/2026-03-06?userId=abc123 then receives 2026-03-06
+    public DiaryDetailResponse getDiaryByDate(
+            @PathVariable
+            // This helps Spring correctly convert the path string into a LocalDate
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date,
+            @RequestParam String userId
+            ){
+        return diaryService.getDiaryByDate(userId, date);
+    }
+
+    // RequestBody take the JSON body from the request and convert it into a java object
+    @PostMapping
+    // @Valid validates the object before executing the method
+    // fails -> 400 error, passes -> executes method
+    public DiaryDetailResponse saveDiary(@Valid @RequestBody SaveDiaryRequest diary){
+        return diaryService.saveDiary(diary);
+    }
+
+}
+

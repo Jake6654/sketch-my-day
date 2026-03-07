@@ -33,11 +33,15 @@ export default function Home() {
 
   // 3) 구글 로그인
   const handleGoogleLogin = async () => {
+    const redirectTo =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/auth/callback`
+        : undefined;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        // 배포 환경에선 배포 URL로 바꿔 줄 것!
-        redirectTo: "http://localhost:3000/auth/callback",
+        redirectTo,
       },
     });
 

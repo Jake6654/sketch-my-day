@@ -1,5 +1,8 @@
 package sketch_my_day.demo.diary.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,12 +18,27 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class SaveDiaryRequest {
 
+    @NotBlank // value must not be empty, null, whitespace
     private String userId;
+
+    @NotNull
     private LocalDate entryDate;
+
+    @NotBlank
+    @Size(max = 16) // length size
     private String mood;
+
+    @Size(max = 5000)
     private String content;
+
+    @Size(max = 2000)
     private String todo;
+
+    @Size(max = 2000)
     private String reflection;
+
     private String illustrationUrl;
+
+    @Size(max = 300)
     private String summary;
 }

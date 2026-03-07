@@ -1,8 +1,12 @@
 package sketch_my_day.demo.diary;
 
 
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import sketch_my_day.demo.diary.dto.DiaryDetailResponse;
+import sketch_my_day.demo.diary.dto.DiarySummaryResponse;
+import sketch_my_day.demo.diary.dto.SaveDiaryRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -56,14 +60,14 @@ public class DiaryController {
     @GetMapping
     // RequestParam reads a query parameter from the url
     // ex: GET /api/diaries?userId=abc123
-    public List<Diary> getAllDiaries(@RequestParam String userId){
+    public List<DiarySummaryResponse> getAllDiaries(@RequestParam String userId){
         return diaryService.getAllDiaries(userId);
     }
 
     @GetMapping("/{date}")
     // PathVariable reads a value from the URL path
     // ex: GET /api/diaries/2026-03-06?userId=abc123 then receives 2026-03-06
-    public Diary getDiaryByDae(
+    public DiaryDetailResponse getDiaryByDate(
             @PathVariable
             // This helps Spring correctly convert the path string into a LocalDate
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date,
@@ -74,7 +78,9 @@ public class DiaryController {
 
     // RequestBody take the JSON body from the request and convert it into a java object
     @PostMapping
-    public Diary saveDiary(@RequestBody Diary diary){
+    // @Valid validates the object before executing the method
+    // fails -> 400 error, passes -> executes method
+    public DiaryDetailResponse saveDiary(@Valid @RequestBody SaveDiaryRequest diary){
         return diaryService.saveDiary(diary);
     }
 

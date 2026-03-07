@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 import sketch_my_day.demo.diary.dto.DiaryDetailResponse;
 import sketch_my_day.demo.diary.dto.DiarySummaryResponse;
 import sketch_my_day.demo.diary.dto.SaveDiaryRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,11 +33,11 @@ public class DiaryService {
 
     public DiaryDetailResponse getDiaryByDate(String userId, LocalDate entryDate){
         Diary diary = diaryRepository.findByUserIdAndEntryDate(userId, entryDate)
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Diary not found for useId=" + userId + " and date=" + entryDate
+                        ));
 
-        if (diary == null){
-            return null;
-        }
         return toDetailResponse(diary);
     }
 
@@ -91,4 +94,4 @@ public class DiaryService {
         );
     }
 }
-}
+

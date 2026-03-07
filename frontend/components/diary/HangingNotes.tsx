@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { DiaryEntry, Mood, MOOD_META, getRandomColor } from "./diaryTypes";
+import { DiaryEntry, getRandomColor } from "./diaryTypes";
 
 type HangingNotesProps = {
   diaries: DiaryEntry[];
@@ -10,16 +10,33 @@ type HangingNotesProps = {
 };
 
 const MAX_NOTES = 5;
+const PREVIEW_MAX_CHARS = 110;
+
+function toPreviewText(raw: string | null | undefined): string {
+  const normalized = (raw ?? "").replace(/\s+/g, " ").trim();
+
+  if (!normalized) {
+    return "No diary content yet. Click this note to view details.";
+  }
+
+  if (normalized.length <= PREVIEW_MAX_CHARS) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, PREVIEW_MAX_CHARS)}....`;
+}
 
 export default function HangingNotes({
   diaries,
   isLoading,
 }: HangingNotesProps) {
-  const ordered = [...diaries].sort((a, b) =>
-    b.entryDate.localeCompare(a.entryDate)
-  );
-
-  const visibleDiaries = ordered.slice(0, MAX_NOTES);
+  // Always show only the latest 5 diaries by entryDate.
+  const visibleDiaries = [...diaries]
+    .sort(
+      (a, b) =>
+        new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
+    )
+    .slice(0, MAX_NOTES);
   return (
     <section className="bg-[#FFFBF0] border-4 border-black rounded-2xl p-4 md:p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative">
       <div className="absolute -top-4 left-4 bg-black text-white px-3 py-1 text-xs font-bold rounded-full">
@@ -43,8 +60,7 @@ export default function HangingNotes({
         {!isLoading &&
           visibleDiaries.map((diary, index) => {
             const color = getRandomColor(index);
-            const moodKey = diary.mood.toLowerCase() as Mood;
-            const moodMeta = MOOD_META[moodKey] || MOOD_META.chill;
+            const previewText = toPreviewText(diary.summary);
 
             return (
               <div
@@ -68,8 +84,8 @@ export default function HangingNotes({
                       {diary.entryDate}
                     </div>
                     <div className="flex items-center gap-1 text-xs font-bold mb-2"></div>
-                    <p className="text-xs md:text-sm leading-snug line-clamp-6 flex-1">
-                      {diary.summary}
+                    <p className="text-xs md:text-sm leading-snug flex-1">
+                      {previewText}
                     </p>
                   </div>
                 </Link>

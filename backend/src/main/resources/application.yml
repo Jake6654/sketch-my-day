@@ -10,4 +10,4 @@ spring:
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,https://sketch-my-day.vercel.app,https://sketch-my-day-jae-hyuks-projects.vercel.app}

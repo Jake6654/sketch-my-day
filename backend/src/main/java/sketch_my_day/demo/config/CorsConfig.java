@@ -7,12 +7,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
+/**
+ * frontend and backend have different domains, frontend is deployed on vercel,
+ * backend is deployed on render, so we need this configuration
+ */
+
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
     private final String[] allowedOrigins;
 
     public CorsConfig(
+            // app.cors.allowed-origins 을 읽어라 없으면 localhost 을 사용 이건 application.yml 에 존재
             @Value("${app.cors.allowed-origins:http://localhost:3000}") String allowedOrigins
     ) {
         // "a,b,c" -> ["a", "b", "c"], remove spaces/empty values for safe runtime config.

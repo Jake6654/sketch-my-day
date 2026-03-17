@@ -22,6 +22,29 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 - `GET /health`
 - `POST /generate-image`
 
+## Quick Test
+
+1) Start server
+
+```bash
+cd ai-service
+source .venv/bin/activate
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+2) Run one-line `curl` test in another terminal
+
+```bash
+curl -sS -X POST "http://127.0.0.1:8000/generate-image" -H "Content-Type: application/json" -d '{"user_id":"smoke-test-user","entry_date":"2026-03-16","mood":"chill","content":"오늘은 카페에서 조용히 일기를 쓰고 하루를 정리했다.","todo":"[]","reflection":"마무리해서 마음이 편안했다."}'
+```
+
+3) Or run all-in-one smoke test script (start server + request + shutdown)
+
+```bash
+cd ai-service
+./scripts/smoke-test-generate-image.sh
+```
+
 ### Request Example
 
 ```json

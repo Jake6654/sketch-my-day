@@ -1,0 +1,16 @@
+services:
+  ai-service:
+    build: . # 현재 폴더의 Dockerfile 로 이미지 생성
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis #redis 먼저 실행
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"

@@ -1,36 +1,41 @@
-from fastapi import FastAPI
 import json
 import os
+import uuid
 
 from dotenv import load_dotenv
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from openai import OpenAI
-from .schemas import GenerateImageRequest, GenerateImageResponse
+import replicate
 
-"""
-"This is the main FastAPI application file. It creates the app, defines API routes, receives requests, and returns responses
-"""
+from .schemas import (
+    GenerateImageJobCreateResponse,
+    GenerateImageJobStatusResponse,
+    GenerateImageRequest,
+)
 
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Creates the FastAPI app
 app = FastAPI(
     title="Sketch My Day AI Service",
     description="AI service for diary analysis and illustration generation",
     version="0.1.0",
 )
 
+# Temporary in-memory job store
+# Later, replace this with Redis.
+jobs: dict[str, dict] = {}
+
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-
-# Image generation endpoint
+# summarize diary content by LLM
 def process_diary_with_llm(payload: GenerateImageRequest) -> dict[str, str]:
     system_prompt = """
-You are an assistant that helps convert a user's diary entry into structured inputs for an illustration model.
+You are an assistant that converts a diary entry into structured inputs for an illustration model.
 
 Return valid JSON with exactly these keys:
 - summary
@@ -71,27 +76,77 @@ Reflection: {payload.reflection or ""}
         "negative_prompt": parsed["negative_prompt"],
     }
 
-# Call diffusion model
+
 def generate_illustration(prompt: str, negative_prompt: str) -> str:
-    """
-    Temporary mock image generation logic.
-    Later, replace this with a real diffusion model call.
-    """
-    return "https://picsum.photos/seed/sketch-my-day/1024/1024"
-
-# separate logic and execution
-@app.post("/generate-image", response_model=GenerateImageResponse)
-def generate_image(payload: GenerateImageRequest) -> GenerateImageResponse:
-    llm_result = process_diary_with_llm(payload)
-
-    illustration_url = generate_illustration(
-        prompt=llm_result["prompt"],
-        negative_prompt=llm_result["negative_prompt"],
+    output = replicate.run(
+        "black-forest-labs/flux-dev",
+        input={
+            "prompt": prompt,
+        },
     )
 
-    return GenerateImageResponse(
-        illustration_url=illustration_url,
-        summary=llm_result["summary"],
-        prompt=llm_result["prompt"],
-        negative_prompt=llm_result["negative_prompt"],
+    if isinstance(output, list):
+        return str(output[0])
+
+    return str(output)
+
+
+def run_generation_job(job_id: str, payload: GenerateImageRequest) -> None:
+    try:
+        jobs[job_id]["status"] = "processing"
+
+        llm_result = process_diary_with_llm(payload)
+
+        illustration_url = generate_illustration(
+            prompt=llm_result["prompt"],
+            negative_prompt=llm_result["negative_prompt"],
+        )
+
+        jobs[job_id] = {
+            "job_id": job_id,
+            "status": "completed",
+            "illustration_url": illustration_url,
+            "summary": llm_result["summary"],
+            "prompt": llm_result["prompt"],
+            "negative_prompt": llm_result["negative_prompt"],
+            "error": None,
+        }
+
+    except Exception as e:
+        jobs[job_id]["status"] = "failed"
+        jobs[job_id]["error"] = str(e)
+
+
+@app.post("/generate-image", response_model=GenerateImageJobCreateResponse)
+def create_generate_image_job(
+    payload: GenerateImageRequest,
+    background_tasks: BackgroundTasks,
+) -> GenerateImageJobCreateResponse:
+    job_id = str(uuid.uuid4())
+
+    jobs[job_id] = {
+        "job_id": job_id,
+        "status": "pending",
+        "illustration_url": None,
+        "summary": None,
+        "prompt": None,
+        "negative_prompt": None,
+        "error": None,
+    }
+
+    background_tasks.add_task(run_generation_job, job_id, payload)
+
+    return GenerateImageJobCreateResponse(
+        job_id=job_id,
+        status="pending",
     )
+
+
+@app.get("/generate-image/{job_id}", response_model=GenerateImageJobStatusResponse)
+def get_generate_image_job(job_id: str) -> GenerateImageJobStatusResponse:
+    job = jobs.get(job_id)
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return GenerateImageJobStatusResponse(**job)

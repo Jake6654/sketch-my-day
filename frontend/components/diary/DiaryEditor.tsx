@@ -20,6 +20,8 @@ import BirthdaySurprise, { isFriendBirthday } from "./BirthdaySurprise";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+const JOB_POLL_INTERVAL_MS = 2000;
+const JOB_POLL_MAX_ATTEMPTS = 60;
 
 export type Todo = {
   id: number;
@@ -41,6 +43,21 @@ type DiaryEditorProps = {
   backHref?: string;
   backLabelDesktop?: string;
   backLabelMobile?: string;
+};
+
+type AiGenerateImageJobCreateResponse = {
+  jobId: string;
+  status: "pending" | "processing" | "completed" | "failed";
+};
+
+type AiGenerateImageJobStatusResponse = {
+  jobId: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  illustrationUrl: string | null;
+  summary: string | null;
+  prompt: string | null;
+  negativePrompt: string | null;
+  error: string | null;
 };
 
 export default function DiaryEditor({
@@ -66,6 +83,7 @@ export default function DiaryEditor({
     initialIllustrationUrl ?? null
   );
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState<string | null>(null);
 
   // Saving state
   const [saving, setSaving] = useState(false);
@@ -154,6 +172,7 @@ export default function DiaryEditor({
 
     try {
       setIsGenerating(true);
+      setGenerationStatus("Starting image job...");
 
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData.session?.user;
@@ -169,7 +188,7 @@ export default function DiaryEditor({
 
       const userId = user.id;
 
-      const diaryData = {
+      const aiRequestBody = {
         userId,
         entryDate: date,
         content,
@@ -180,29 +199,73 @@ export default function DiaryEditor({
             .map((t) => t.reflection)
             .filter(Boolean)
             .join("\n") || "",
-        illustrationUrl,
-        generateIllustration: true,
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/diaries`, {
+      const createJobRes = await fetch(`${API_BASE_URL}/api/ai/generate-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(diaryData),
+        body: JSON.stringify(aiRequestBody),
       });
 
-      if (!res.ok) {
-        console.error("Failed to generate illustration", await res.text());
+      if (!createJobRes.ok) {
+        console.error(
+          "Failed to create image generation job",
+          await createJobRes.text()
+        );
         alert("Failed to generate illustration. Please try again.");
         return;
       }
 
-      const saved = await res.json();
-      setIllustrationUrl(saved.illustrationUrl);
+      const createdJob: AiGenerateImageJobCreateResponse =
+        await createJobRes.json();
+
+      for (let attempt = 0; attempt < JOB_POLL_MAX_ATTEMPTS; attempt += 1) {
+        const statusRes = await fetch(
+          `${API_BASE_URL}/api/ai/generate-image/${createdJob.jobId}`
+        );
+
+        if (!statusRes.ok) {
+          console.error(
+            "Failed to poll image generation job status",
+            await statusRes.text()
+          );
+          await new Promise((resolve) =>
+            setTimeout(resolve, JOB_POLL_INTERVAL_MS)
+          );
+          continue;
+        }
+
+        const job: AiGenerateImageJobStatusResponse = await statusRes.json();
+        setGenerationStatus(`Job status: ${job.status}`);
+
+        if (job.status === "completed") {
+          if (!job.illustrationUrl) {
+            throw new Error("Image generation completed but no image URL found.");
+          }
+          setIllustrationUrl(job.illustrationUrl);
+          setGenerationStatus("Completed");
+          return;
+        }
+
+        if (job.status === "failed") {
+          throw new Error(job.error ?? "Image generation failed.");
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, JOB_POLL_INTERVAL_MS));
+      }
+
+      throw new Error("Image generation timed out. Please try again.");
     } catch (err) {
       console.error("Error generating illustration:", err);
-      alert("Unexpected error while generating illustration.");
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unexpected error while generating illustration.";
+      setGenerationStatus(null);
+      alert(message);
     } finally {
       setIsGenerating(false);
+      setGenerationStatus(null);
     }
   };
 
@@ -362,7 +425,7 @@ export default function DiaryEditor({
                       Generating your cartoon illustration...
                     </p>
                     <p className="text-xs md:text-sm text-gray-600 max-w-xs text-center">
-                      This may take a few seconds.
+                      {generationStatus ?? "This may take a few seconds."}
                     </p>
                   </>
                 ) : illustrationUrl ? (

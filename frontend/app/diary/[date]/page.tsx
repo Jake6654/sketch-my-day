@@ -28,7 +28,12 @@ export default function DiaryByDatePage() {
     mood: string | null;
     todos: Todo[];
     illustrationUrl: string | null;
-  } | null>(null);
+  }>({
+    content: "",
+    mood: null,
+    todos: [],
+    illustrationUrl: null,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,6 +63,13 @@ export default function DiaryByDatePage() {
         }
 
         if (!res.ok) {
+          setMode("create");
+          setInitialData({
+            content: "",
+            mood: null,
+            todos: [],
+            illustrationUrl: null,
+          });
           setLoading(false);
           return;
         }
@@ -72,6 +84,7 @@ export default function DiaryByDatePage() {
           }
         }
 
+        setMode("edit");
         setInitialData({
           content: d.content ?? "",
           mood: d.mood ?? null,
@@ -94,17 +107,9 @@ export default function DiaryByDatePage() {
     return <div className="p-8">Loading...</div>;
   }
 
-  if (!initialData) {
-    return (
-      <div className="p-8">
-        <p>No diary found for this date.</p>
-      </div>
-    );
-  }
-
   return (
     <DiaryEditor
-      mode="edit"
+      mode={mode}
       date={params.date}
       initialContent={initialData.content}
       initialMood={initialData.mood}

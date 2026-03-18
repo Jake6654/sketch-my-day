@@ -6,6 +6,12 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 10000
+      max-lifetime: 30000
+      connection-timeout: 20000
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -16,7 +22,6 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,https://sketch-my-day.vercel.app,https://sketch-my-day-jae-hyuks-projects.vercel.app}
 
-# External Service Config
 ai:
   service:
     base-url: ${AI_SERVICE_BASE_URL}

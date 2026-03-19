@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Entity // this make this class be recognized as a database entity
 @Table(name = "diaries", // diaries table 과 map
+schema = "public",
 uniqueConstraints = {
         // One user can have only one diary per date, this match my database rule
         @UniqueConstraint(columnNames = {"user_id", "entry_date"})

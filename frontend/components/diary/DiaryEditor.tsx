@@ -46,16 +46,20 @@ type DiaryEditorProps = {
 };
 
 type AiGenerateImageJobCreateResponse = {
+  job_id?: string;
   jobId: string;
   status: "pending" | "processing" | "completed" | "failed";
 };
 
 type AiGenerateImageJobStatusResponse = {
+  job_id?: string;
   jobId: string;
   status: "pending" | "processing" | "completed" | "failed";
+  illustration_url?: string | null;
   illustrationUrl: string | null;
   summary: string | null;
   prompt: string | null;
+  negative_prompt?: string | null;
   negativePrompt: string | null;
   error: string | null;
 };
@@ -216,12 +220,20 @@ export default function DiaryEditor({
         return;
       }
 
-      const createdJob: AiGenerateImageJobCreateResponse =
+      const createdJobRaw: AiGenerateImageJobCreateResponse =
         await createJobRes.json();
+      const createdJobId = createdJobRaw.jobId ?? createdJobRaw.job_id;
+
+      if (!createdJobId) {
+        console.error("Invalid create job response:", createdJobRaw);
+        throw new Error("Failed to read image job ID from server response.");
+      }
 
       for (let attempt = 0; attempt < JOB_POLL_MAX_ATTEMPTS; attempt += 1) {
         const statusRes = await fetch(
-          `${API_BASE_URL}/api/ai/generate-image/${createdJob.jobId}`
+          `${API_BASE_URL}/api/ai/generate-image/${encodeURIComponent(
+            createdJobId
+          )}`
         );
 
         if (!statusRes.ok) {
@@ -235,7 +247,14 @@ export default function DiaryEditor({
           continue;
         }
 
-        const job: AiGenerateImageJobStatusResponse = await statusRes.json();
+        const jobRaw: AiGenerateImageJobStatusResponse = await statusRes.json();
+        const job: AiGenerateImageJobStatusResponse = {
+          ...jobRaw,
+          jobId: jobRaw.jobId ?? jobRaw.job_id ?? "",
+          illustrationUrl: jobRaw.illustrationUrl ?? jobRaw.illustration_url ?? null,
+          negativePrompt:
+            jobRaw.negativePrompt ?? jobRaw.negative_prompt ?? null,
+        };
         setGenerationStatus(`Job status: ${job.status}`);
 
         if (job.status === "completed") {

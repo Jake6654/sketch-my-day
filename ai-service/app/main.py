@@ -6,7 +6,7 @@ import redis
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from openai import OpenAI
-import replicate
+from .image_providers import generate_illustration
 
 from .schemas import (
     GenerateImageJobCreateResponse,
@@ -84,13 +84,6 @@ Reflection: {payload.reflection or ""}
         "negative_prompt": parsed["negative_prompt"],
     }
 
-
-def generate_illustration(prompt: str, negative_prompt: str) -> str:
-    output = replicate.run(
-        "black-forest-labs/flux-dev",
-        input={"prompt": prompt},
-    )
-    return str(output[0]) if isinstance(output, list) else str(output)
 
 
 def run_generation_job(job_id: str, payload: GenerateImageRequest) -> None:

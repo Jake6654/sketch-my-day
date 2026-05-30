@@ -85,7 +85,6 @@ Reflection: {payload.reflection or ""}
     }
 
 
-
 def run_generation_job(job_id: str, payload: GenerateImageRequest) -> None:
     try:
         job = get_job(job_id)

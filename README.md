@@ -219,22 +219,40 @@ cd frontend
 npm install
 npm run dev
 ```
+---
 
-### Backend
+## Local AI Stack
+
+The local AI stack runs three services together with Docker Compose:
+
+- `redis`: stores generation job state
+- `image-server`: mock self-hosted image generation service on port `8001`
+- `ai-service`: FastAPI orchestration service on port `8000`
+
+Start the stack from the project root:
 
 ```bash
-cd backend
-./gradlew bootRun
+docker compose up --build
 ```
 
-### AI Service
+Run it in the background:
 
 ```bash
-cd ai-service
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+docker compose up --build -d
 ```
 
-The AI service also needs Redis. For a container-based local run, `ai-service/docker-compose.yml` starts both the AI service and Redis.
+Check health endpoints:
+
+```bash
+curl -sS http://127.0.0.1:8000/health
+curl -sS http://127.0.0.1:8001/health
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+When running through this root compose file, `ai-service` uses `IMAGE_PROVIDER=self_hosted` and calls the `image-server` container at `http://image-server:8001`.
+

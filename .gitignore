@@ -91,3 +91,12 @@ pnpm-debug.log*
 *.tmp
 *.temp
 *.swp
+
+# Python virtual environments and tooling
+**/.venv/
+**/venv/
+**/env/
+**/.env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

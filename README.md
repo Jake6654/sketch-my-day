@@ -95,3 +95,40 @@ If `frontend/.env` already exists, keep using it.
 npm install
 npm run dev
 ```
+---
+
+## Local AI Stack
+
+The local AI stack runs three services together with Docker Compose:
+
+- `redis`: stores generation job state
+- `image-server`: mock self-hosted image generation service on port `8001`
+- `ai-service`: FastAPI orchestration service on port `8000`
+
+Start the stack from the project root:
+
+```bash
+docker compose up --build
+```
+
+Run it in the background:
+
+```bash
+docker compose up --build -d
+```
+
+Check health endpoints:
+
+```bash
+curl -sS http://127.0.0.1:8000/health
+curl -sS http://127.0.0.1:8001/health
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+When running through this root compose file, `ai-service` uses `IMAGE_PROVIDER=self_hosted` and calls the `image-server` container at `http://image-server:8001`.
+

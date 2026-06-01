@@ -13,6 +13,8 @@ def generate_with_self_hosted(prompt: str, negative_prompt: str) -> str:
         )
     
     response = requests.post(
+        # This builds the final endpoint URL. 
+        # It works whether your env var has a trailing slash or not
         f"{base_url.rstrip('/')}/generate",
         json={
             "prompt": prompt,

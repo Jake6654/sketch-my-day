@@ -100,3 +100,5 @@ pnpm-debug.log*
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+image-server/generated/65eb7268-27f6-403f-9d50-b7e981c091e7.png
+image-server/generated/

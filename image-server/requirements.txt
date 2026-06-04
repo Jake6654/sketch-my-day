@@ -1,3 +1,9 @@
 fastapi==0.116.1
 uvicorn[standard]==0.35.0
 pydantic==2.11.7
+torch
+diffusers
+transformers
+accelerate
+safetensors
+pillow

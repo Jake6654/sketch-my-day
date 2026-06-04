@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# use the existing env vars otherwise use default env vars
 AI_SERVICE_URL="${AI_SERVICE_URL:-http://127.0.0.1:8000}"
 IMAGE_SERVER_URL="${IMAGE_SERVER_URL:-http://127.0.0.1:8001}"
 TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-60}"
@@ -58,6 +59,7 @@ while [ "$SECONDS_WAITED" -lt "$TIMEOUT_SECONDS" ]; do
     exit 0
   fi
 
+  #
   if [ "$STATUS" = "failed" ]; then
     echo "[ERROR] Job failed"
     echo "$STATUS_RESPONSE"

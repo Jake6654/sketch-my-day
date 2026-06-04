@@ -10,7 +10,7 @@ services:
     ports:
       - "8001:8001"
     environment:
-      IMAGE_SERVER_PROVIDER: mock
+      IMAGE_SERVER_PROVIDER: huggingface
     healthcheck:
       test:
         [

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 
 from .schemas import GenerateImageRequest, GenerateImageResponse
@@ -12,7 +14,9 @@ app = FastAPI(
 
 # This means files inside generated/ can be accessed through 
 # http://127.0.0.1:8001/static/filename.png
-app.mount("/static", StaticFiles(directory="generated"), name="static")
+generated_dir = Path(__file__).resolve().parent.parent / "generated"
+generated_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(generated_dir)), name="static")
 
 
 @app.get("/health")

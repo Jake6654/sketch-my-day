@@ -40,3 +40,36 @@ services:
         condition: service_started
       image-server:
         condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      AI_SERVICE_URL: http://ai-service:8000
+      OPSLENS_URL: http://host.docker.internal:8081
+      OPSLENS_PROJECT: sketch-my-day
+      OPSLENS_ENVIRONMENT: dev
+    depends_on:
+      ai-service:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+    depends_on:
+      backend:
+        condition: service_started

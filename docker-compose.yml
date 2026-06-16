@@ -10,12 +10,11 @@ services:
     ports:
       - "8001:8001"
     environment:
-      IMAGE_SERVER_PROVIDER: huggingface
+      IMAGE_SERVER_PROVIDER: mock
     healthcheck:
-      test:
-        [
+      test: [
           "CMD",
-          "python",
+          "python3.11", # "python when run on VM"
           "-c",
           "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')",
         ]
@@ -49,7 +48,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      AI_SERVICE_URL: http://ai-service:8000
+      AI_SERVICE_BASE_URL: http://ai-service:8000
       OPSLENS_URL: http://host.docker.internal:8081
       OPSLENS_PROJECT: sketch-my-day
       OPSLENS_ENVIRONMENT: dev

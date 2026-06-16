@@ -1,28 +1,15 @@
-FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
+FROM python:3.11-slim
 
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y \
-    python3.11 \
-    python3.11-venv \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
-
+# Copy a local file into a container
 COPY requirements.txt .
+# Run this command while building an image
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python3.11 -m pip install --upgrade pip
-
-RUN python3.11 -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
-
-RUN python3.11 -m pip install --no-cache-dir -r requirements.txt
-
+# 전체 프로젝트를 복사
 COPY . .
 
-RUN mkdir -p generated
+EXPOSE 8000
 
-EXPOSE 8001
-
-CMD ["python3.11", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+# Run this command while executhing a container
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

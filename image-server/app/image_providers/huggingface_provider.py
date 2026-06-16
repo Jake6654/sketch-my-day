@@ -10,10 +10,24 @@ MODEL_ID = os.getenv(
     "HF_MODEL_ID",
     "hf-internal-testing/tiny-stable-diffusion-pipe",
 )
-PUBLIC_BASE_URL = os.getenv(
-    "IMAGE_SERVER_PUBLIC_BASE_URL",
-    "http://127.0.0.1:8001", # if not, uses this default value
-)
+# let system know the project is running locally or in production
+def get_public_base_url() -> str:
+    public_base_url = os.getenv("IMAGE_SERVER_PUBLIC_BASE_URL")
+    if public_base_url:
+        return public_base_url
+
+    app_env = os.getenv("APP_ENV", "local").lower()
+    if app_env in {"local", "dev", "development"}:
+        return "http://127.0.0.1:8001"
+
+    raise RuntimeError(
+        "IMAGE_SERVER_PUBLIC_BASE_URL is required outside local development. "
+        "Set it to the public image-server URL, for example http://EC2_PUBLIC_IP:8001."
+    )
+
+
+PUBLIC_BASE_URL = get_public_base_url()
+
 OUTPUT_DIR = Path(os.getenv("IMAGE_OUTPUT_DIR", "generated"))
 
 # no model pipline has been loaded yet
@@ -28,6 +42,8 @@ def get_device() -> str:
         return "mps"
 
     return "cpu"
+
+
 
 # Load the Hugging face model once and reuse it 
 def get_pipeline():

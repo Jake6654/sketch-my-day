@@ -49,6 +49,10 @@ export default function Home() {
       provider: "google",
       options: {
         redirectTo,
+        queryParams: {
+          // do not skip account selection
+          prompt: "select_account",
+        },
       },
     });
 

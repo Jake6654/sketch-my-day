@@ -1,9 +1,15 @@
-import { Gowun_Dodum } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const gowun = Gowun_Dodum({
-  weight: "400",
-  subsets: ["latin"],
+const appFont = localFont({
+  src: "./fonts/geist-latin.woff2",
+  display: "swap",
+  fallback: [
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    "Noto Sans KR",
+    "sans-serif",
+  ],
 });
 
 export default function RootLayout({
@@ -13,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={gowun.className}>{children}</body> {/* 폰트 적용 */}
+      <body className={appFont.className}>{children}</body>
     </html>
   );
 }

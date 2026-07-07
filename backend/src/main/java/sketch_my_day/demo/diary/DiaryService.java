@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import sketch_my_day.demo.diary.dto.DiaryDetailResponse;
 import sketch_my_day.demo.diary.dto.DiarySummaryResponse;
 import sketch_my_day.demo.diary.dto.SaveDiaryRequest;
+import sketch_my_day.demo.logging.OpsLensClient;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,10 +16,13 @@ public class DiaryService {
     // use final to protect the variable to be reassigned after initialization
     private final DiaryRepository diaryRepository;
 
+    private final OpsLensClient opsLensClient;
+
     // Constructor injection
     // Spring automatically gives this class the repository it needs
-    public DiaryService(DiaryRepository diaryRepository) {
+    public DiaryService(DiaryRepository diaryRepository, OpsLensClient opsLensClient) {
         this.diaryRepository = diaryRepository;
+        this.opsLensClient = opsLensClient;
     }
 
     // returns a list of diary summaries for a user
@@ -57,8 +61,21 @@ public class DiaryService {
         diary.setSummary(request.getSummary());
 
         Diary savedDiary = diaryRepository.save(diary);
-
+    try {
+        opsLensClient.sendLog(
+                "INFO",
+                "DiaryService",
+                "Diary saved successfully for userId=" + request.getUserId()
+        );
         return toDetailResponse(savedDiary);
+    } catch (Exception error) {
+        opsLensClient.sendLog(
+                "ERROR",
+                "DiaryService",
+                "Diary save failed: " + error.getClass().getSimpleName() + " - " + error.getMessage()
+        );
+        throw error;
+    }
     }
 
     /**

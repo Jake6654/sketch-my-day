@@ -24,7 +24,7 @@ public class OpsLensClient {
 
     public OpsLensClient(
             // This reads opslens.url from application.properties, and if it does not exist, it uses http://localhost:8080
-            @Value("${opslens.url:http://localhost:8080}") String opsLensUrl,
+            @Value("${opslens.url:http://localhost:8081}") String opsLensUrl,
             @Value("${opslens.api-key:}") String apiKey,
             @Value("${opslens.project:sketch-my-day}") String project,
             @Value("${opslens.environment:dev}") String environment
@@ -61,7 +61,7 @@ public class OpsLensClient {
                     .retrieve() // sends the request
                     .toBodilessEntity(); // ignores the response body
         } catch (Exception e) {
-            System.out.println("Failed to send long to OpsLens: " + e.getMessage());
+            System.out.println("Failed to send log to OpsLens: " + e.getMessage());
         }
 
     }

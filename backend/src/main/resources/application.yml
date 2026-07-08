@@ -30,7 +30,7 @@ ai:
     base-url: ${AI_SERVICE_BASE_URL:http://127.0.0.1:8000}
 
 opslens:
-  url: ${OPSLENS_URL:http://localhost:8080}
+  url: ${OPSLENS_URL:http://localhost:8081}
   api-key: ${OPSLENS_API_KEY:}
   project: ${OPSLENS_PROJECT:sketch-my-day}
   environment: ${OPSLENS_ENVIRONMENT:dev}
